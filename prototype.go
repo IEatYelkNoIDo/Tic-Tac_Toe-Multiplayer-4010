@@ -41,7 +41,7 @@ func (g *Game) Update() error {
         return nil
     }
 
-    if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+    if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) && g.winner == ""{
         x, y := ebiten.CursorPosition()
         col := (x - g.offset) / g.cellSize
         row := (y - g.offset) / g.cellSize
