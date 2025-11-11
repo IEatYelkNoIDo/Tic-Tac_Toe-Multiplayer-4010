@@ -33,6 +33,7 @@ var (
 
 var conn1 net.Conn = nil
 var conn2 net.Conn = nil
+var resetTrigger int 
 
 func main() {
         // listen
@@ -89,6 +90,18 @@ func main() {
 
                                 fmt.Printf("Player %d move: row=%d, col=%d\n", input.Player, input.Row, input.Col)
                                 mutex.Lock()
+
+								// check if the player is allowed to make a move
+								expectedPlayer := 1
+								if turn % 2 == 0 {
+									expectedPlayer = 2
+								}
+
+								if input.Player != expectedPlayer {
+									fmt.Println("Player tried to move twice or more on one turn", input.Player, turn, expectedPlayer)
+									mutex.Unlock() // close this go routine's exculsive control. Essentially blocks player input
+									continue
+								}
 
 
                                 if board[input.Row][input.Col] == 0 {

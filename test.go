@@ -180,10 +180,10 @@ func (g *Game) Update() error {
 							row ++
 						}*/
 
-						/*encoder := json.NewEncoder(g.conn)
+						encoder := json.NewEncoder(g.conn)
 						if err := encoder.Encode(1); err != nil {
 							fmt.Println(err)
-						}*/
+						}
 						
 						// Reset game logic
 						*g = *NewGame()
@@ -360,7 +360,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		// Writes out turns
 		if g.turn % 2 != 0 {
-			text.Draw(screen, "Player l's turn", g.smallFont, g.mX/20, g.mY/20, color.White)
+			text.Draw(screen, "Player 1's turn", g.smallFont, g.mX/20, g.mY/20, color.White)
 		} else {
 			text.Draw(screen, "Player 2's turn", g.smallFont, g.mX/20, g.mY/20, color.White)
 		}
