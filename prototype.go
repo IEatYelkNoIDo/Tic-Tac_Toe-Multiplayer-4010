@@ -41,6 +41,7 @@ type Game struct {
         winner   string
         state    GameState //Defines state as a GameState data type
         conn     net.Conn
+        restart bool
 }
 
 type Input struct {
@@ -60,6 +61,7 @@ type Update struct {
         Board  [3][3]int
         Turn   int
         Winner string
+        Restart bool
 }
 
 // Constructor
@@ -78,6 +80,8 @@ func NewGame() *Game {
                 state:    StateMenu,
         }
 }
+
+//var restart = false
 
 func (g *Game) Update() error {
         if !g.playing {
@@ -155,6 +159,12 @@ func (g *Game) Update() error {
 
                 if g.winner != "" { // Resets game if you press R
                         if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+                                msg := struct{ Restart bool } {Restart: true}
+                                encoder := json.NewEncoder(g.conn)
+
+                                if err := encoder.Encode(msg); err != nil {
+                                        fmt.Println("restart error ", err)
+                                }
                                 *g = *NewGame()
                         }
                 }
@@ -293,10 +303,10 @@ func main() {
         var err error
 
         // chose whichever server you like. Every server is connected via a tailscale ip address
-        //conn, err := d.DialContext(ctx, "tcp", "100.67.88.56:8080")
+        conn, err := d.DialContext(ctx, "tcp", "100.67.88.56:8080")
         //conn, err := d.DialContext(ctx, "tcp", "100.118.145.55:8080")
-        conn, err := d.DialContext(ctx, "tcp", "100.108.153.55:8080")
-
+        //conn, err := d.DialContext(ctx, "tcp", "100.108.153.55:8080")
+        
         if err != nil {
                 log.Println("Dial error:", err)
         }
@@ -332,6 +342,7 @@ func main() {
                         g.turn = update.Turn
                         g.winner = update.Winner
                         g.player = update.Player
+                        //g.restart = update.Restart
                 }
         }()
 
