@@ -169,6 +169,22 @@ func (g *Game) Update() error {
 						imageX := g.imageX
 						imageO := g.imageO
 
+						/*row := 0
+
+						for row <= 3 {
+							col := 0
+							for col <=3 {
+								g.board[row][col] = 0
+								col ++
+							}
+							row ++
+						}*/
+
+						/*encoder := json.NewEncoder(g.conn)
+						if err := encoder.Encode(1); err != nil {
+							fmt.Println(err)
+						}*/
+						
 						// Reset game logic
 						*g = *NewGame()
 
@@ -366,9 +382,9 @@ func main() {
 	var err error
 
 	// chose whichever server you like. Every server is connected via a tailscale ip address
-	//conn, err := d.DialContext(ctx, "tcp", "100.67.88.56:8080")
+	conn, err := d.DialContext(ctx, "tcp", "100.67.88.56:8080")
 	//conn, err := d.DialContext(ctx, "tcp", "100.118.145.55:8080")
-	conn, err := d.DialContext(ctx, "tcp", "100.108.153.55:8080")
+	//conn, err := d.DialContext(ctx, "tcp", "100.108.153.55:8080")
 
 	if err != nil {
 		log.Println("Dial error:", err)
