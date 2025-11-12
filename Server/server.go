@@ -41,6 +41,8 @@ func main() {
         // handle connections
         playercount := 0
 
+        fmt.Println("Server is up and running")
+
         dstream, err := net.Listen("tcp", "100.67.88.56:8080")
         if err != nil {
                 fmt.Println(err)
@@ -89,19 +91,19 @@ func main() {
                                 }
 
                                 fmt.Printf("Player %d move: row=%d, col=%d\n", input.Player, input.Row, input.Col)
-                                mutex.Lock()
+                                mutex.Lock() // set this players go routine as the priority go routine
 
-								// check if the player is allowed to make a move
-								expectedPlayer := 1
-								if turn % 2 == 0 {
-									expectedPlayer = 2
-								}
+						// check if the player is allowed to make a move
+						expectedPlayer := 1
+						if turn % 2 == 0 {
+							expectedPlayer = 2
+						}
 
-								if input.Player != expectedPlayer {
-									fmt.Println("Player tried to move twice or more on one turn", input.Player, turn, expectedPlayer)
-									mutex.Unlock() // close this go routine's exculsive control. Essentially blocks player input
-									continue
-								}
+                                                if input.Player != expectedPlayer {
+							fmt.Println("Player tried to move twice or more on one turn", input.Player, turn, expectedPlayer)
+							mutex.Unlock() // close this go routine's exculsive control and give control to the other go routine. Essentially blocks player input
+							continue
+						}
 
 
                                 if board[input.Row][input.Col] == 0 {
@@ -109,7 +111,7 @@ func main() {
                                 turn++
                                 }
                                 winner := checkWin()
-                                mutex.Unlock()
+                                mutex.Unlock() // release the expectedPlayer's go routine control
 
                                 update := Update {
                                 Player: input.Player,

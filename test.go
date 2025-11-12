@@ -87,7 +87,9 @@ func NewGame() *Game {
         }
 }
 
+
 func (g *Game) Update() error {
+
         if !g.playing {
                 return nil
         }
@@ -133,14 +135,23 @@ func (g *Game) Update() error {
 
 					col := (x - g.offset) / g.cellSize
 					row := (y - g.offset) / g.cellSize
+					
+				// check player number before accepting any input
+				expectedPlayer := 1 
+				if g.turn % 2 == 0 {
+					expectedPlayer = 2
+				}
 
+				// only process the click if the expected player is the current player
+				if expectedPlayer == g.player {
+					// send player input to server
+						input := Input{Player: g.player, Row: row, Col: col}
+						json.NewEncoder(g.conn).Encode(input)
+			
 					// Click inside board
 					if col >= 0 && col < 3 && row >= 0 && row < 3 {
 						if g.board[row][col] == 0 {
 							g.board[row][col] = g.player
-
-							input := Input{Player: g.player, Row: row, Col: col}
-							json.NewEncoder(g.conn).Encode(input)
 
 							// Alternate turns
 							if g.player == 1 {
@@ -156,9 +167,12 @@ func (g *Game) Update() error {
 							}
 									
 
-						}
+							}
 					}
-                }
+				} else {					
+					fmt.Println("Sorry not your turn")
+				}
+        	}
         
 
                 if g.winner != "" { // Resets game if you press R
@@ -322,6 +336,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				x := float64(g.offset + col*g.cellSize)
 				y := float64(g.offset + row*g.cellSize)
 				op := &ebiten.DrawImageOptions{}
+			
 				switch g.board[row][col] {
 				case 1:
 					scaleX := float64(g.cellSize) / float64(g.imageX.Bounds().Dx())
@@ -338,6 +353,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 			}
 		}
+	
 		// Draws line through winner
 		if g.winner != "" && g.winner != "CAT" {
 			for i := 0; i <= 5; i++ {
@@ -364,6 +380,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		} else {
 			text.Draw(screen, "Player 2's turn", g.smallFont, g.mX/20, g.mY/20, color.White)
 		}
+	/*} else {
+		fmt.Println("Sorry not your turn")
+	}*/
 
 	}
 }
