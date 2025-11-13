@@ -4,13 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"sync"
 )
-
-type Player struct {
-        //PlayerId int
-       // conn net.Conn
-}
 
 type Input struct {
         Player int
@@ -25,15 +19,14 @@ type Update struct {
         Winner string
 }
 
+// global variables
 var (
         board [3][3]int
         turn  = 1
-        mutex sync.Mutex
 )
 
 var conn1 net.Conn = nil
 var conn2 net.Conn = nil
-var resetTrigger int 
 
 func main() {
         // listen
@@ -41,7 +34,7 @@ func main() {
         // handle connections
         playercount := 0
 
-        fmt.Println("Server is up and running")
+        fmt.Println("Server is up and running. Waiting for players to connect.")
 
         dstream, err := net.Listen("tcp", "100.67.88.56:8080")
         if err != nil {
@@ -61,23 +54,25 @@ func main() {
 
                 fmt.Println("Player connected:", playernum)
 
+                // distinguish between the connections
                 if playernum == 1 {
                         conn1 = conn
                 } else if playernum == 2 {
                         conn2 = conn
                 } else {
                         fmt.Println("Maximum players connected. Connection refused.")
-                        conn.Close()
-                       }
+                        conn.Close() // reject the connection
+                }
 
                 go func(conn net.Conn, playernum int) {
 
                         fmt.Println("Started goroutine for player ", playernum)
 
-                        defer conn.Close()
+                        defer conn.Close() // close the connection after the go routine finishes
                         encoder := json.NewEncoder(conn)
                         decoder := json.NewDecoder(conn)
 
+                        // assign a player id to the current connection.
                         if err := encoder.Encode(struct {Player int}{Player: playernum}); err != nil {
                                 fmt.Println("error sending player number", err)
                                 return
@@ -85,25 +80,25 @@ func main() {
 
                         for {
                                 var input Input
+
+                                // decode the input from the player clicking on the board
                                 if err := decoder.Decode(&input); err != nil {
                                         fmt.Println("Decode error:", err)
                                         return
                                 }
 
                                 fmt.Printf("Player %d move: row=%d, col=%d\n", input.Player, input.Row, input.Col)
-                                mutex.Lock() // set this players go routine as the priority go routine
 
-						// check if the player is allowed to make a move
-						expectedPlayer := 1
-						if turn % 2 == 0 {
-							expectedPlayer = 2
-						}
+                                // check if the player is allowed to make a move
+                                expectedPlayer := 1
+                                if turn % 2 == 0 {
+                                        expectedPlayer = 2
+                                }
 
-                                                if input.Player != expectedPlayer {
-							fmt.Println("Player tried to move twice or more on one turn", input.Player, turn, expectedPlayer)
-							mutex.Unlock() // close this go routine's exculsive control and give control to the other go routine. Essentially blocks player input
-							continue
-						}
+                                if input.Player != expectedPlayer {
+                                        fmt.Println("Player tried to move twice or more on one turn", input.Player, turn, expectedPlayer)
+                                        continue
+                                }
 
 
                                 if board[input.Row][input.Col] == 0 {
@@ -111,8 +106,8 @@ func main() {
                                 turn++
                                 }
                                 winner := checkWin()
-                                mutex.Unlock() // release the expectedPlayer's go routine control
 
+                                // currentlly connected player info
                                 update := Update {
                                 Player: input.Player,
                                 Board: board,
@@ -123,6 +118,7 @@ func main() {
 
                                 fmt.Println("currentUpdate values: ", update)
 
+                                // update the current player
                                 if err := encoder.Encode(update); err != nil {
                                         fmt.Println(err)
                                         return

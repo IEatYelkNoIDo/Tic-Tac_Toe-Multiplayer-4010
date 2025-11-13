@@ -61,8 +61,6 @@ type Message struct {
         Text string 
 }
 
-//var player Input
-
 type Update struct {
         Player int
         Board  [3][3]int
@@ -146,7 +144,8 @@ func (g *Game) Update() error {
 				if expectedPlayer == g.player {
 					// send player input to server
 						input := Input{Player: g.player, Row: row, Col: col}
-						json.NewEncoder(g.conn).Encode(input)
+						json.NewEncoder(g.conn).Encode(input) // Sends the player that made the move and the row and col that they made the move on
+															// sends it something like {Player: int value, Col: int value, Col: int value} 
 			
 					// Click inside board
 					if col >= 0 && col < 3 && row >= 0 && row < 3 {
@@ -182,17 +181,6 @@ func (g *Game) Update() error {
 						smallFont := g.smallFont
 						imageX := g.imageX
 						imageO := g.imageO
-
-						/*row := 0
-
-						for row <= 3 {
-							col := 0
-							for col <=3 {
-								g.board[row][col] = 0
-								col ++
-							}
-							row ++
-						}*/
 
 						encoder := json.NewEncoder(g.conn)
 						if err := encoder.Encode(1); err != nil {
@@ -380,9 +368,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		} else {
 			text.Draw(screen, "Player 2's turn", g.smallFont, g.mX/20, g.mY/20, color.White)
 		}
-	/*} else {
-		fmt.Println("Sorry not your turn")
-	}*/
 
 	}
 }
