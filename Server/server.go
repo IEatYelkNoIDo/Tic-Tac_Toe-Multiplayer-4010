@@ -107,7 +107,6 @@ func main() {
                                 }
                                 winner := checkWin()
 
-                                // currentlly connected player info
                                 update := Update {
                                 Player: input.Player,
                                 Board: board,

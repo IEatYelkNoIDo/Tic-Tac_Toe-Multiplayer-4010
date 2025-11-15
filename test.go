@@ -386,9 +386,9 @@ func main() {
 	var err error
 
 	// chose whichever server you like. Every server is connected via a tailscale ip address
-	conn, err := d.DialContext(ctx, "tcp", "100.67.88.56:8080")
-	//conn, err := d.DialContext(ctx, "tcp", "100.118.145.55:8080")
-	//conn, err := d.DialContext(ctx, "tcp", "100.108.153.55:8080")
+	conn, err := d.DialContext(ctx, "tcp", "100.67.88.56:8080")  // raspberrypi
+	//conn, err := d.DialContext(ctx, "tcp", "100.118.145.55:8080") // ubuntu vm
+	//conn, err := d.DialContext(ctx, "tcp", "100.108.153.55:8080") // virtual box ubuntu vm
 
 	if err != nil {
 		log.Println("Dial error:", err)
